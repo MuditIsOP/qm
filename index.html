@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quality Management Exam Prep</title>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Styles for scrollbar hiding -->
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- ICON COMPONENTS (Replaces lucide-react imports) ---
+        const Icon = ({ children, size = 24, className = "" }) => (
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width={size} 
+                height={size} 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className={className}
+            >
+                {children}
+            </svg>
+        );
+
+        const Search = (props) => <Icon {...props}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></Icon>;
+        const BookOpen = (props) => <Icon {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></Icon>;
+        const CheckCircle = (props) => <Icon {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></Icon>;
+        const Circle = (props) => <Icon {...props}><circle cx="12" cy="12" r="10"/></Icon>;
+        const BarChart3 = (props) => <Icon {...props}><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></Icon>;
+        const Users = (props) => <Icon {...props}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></Icon>;
+        const Settings = (props) => <Icon {...props}><path d="M12.22 2h-.44a2 2 0 0 1-2-1.72l-.16-1.12a2 2 0 0 0-3.8 0l-.16 1.12a2 2 0 0 1-2 1.72l-1.07-.31a2 2 0 0 0-2.48 1.48l-.33 1.05a2 2 0 0 1-1.72 1.28H1a2 2 0 0 0 0 3.8h1.12a2 2 0 0 1 1.72 1.28l.33 1.05a2 2 0 0 0 2.48 1.48l1.07-.31a2 2 0 0 1 2 1.72l.16 1.12a2 2 0 0 0 3.8 0l.16-1.12a2 2 0 0 1 2-1.72l1.07.31a2 2 0 0 0 2.48-1.48l.33-1.05a2 2 0 0 1 1.72-1.28h1.11a2 2 0 0 0 0-3.8h-1.12a2 2 0 0 1-1.72-1.28l-.33-1.05a2 2 0 0 0-2.48-1.48l-1.07.31a2 2 0 0 1-2-1.72z"/><circle cx="12" cy="12" r="3"/></Icon>;
+        const Award = (props) => <Icon {...props}><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></Icon>;
+        const Filter = (props) => <Icon {...props}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></Icon>;
+        const Trash2 = (props) => <Icon {...props}><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></Icon>;
+        const ChevronDown = (props) => <Icon {...props}><polyline points="6 9 12 15 18 9"/></Icon>;
+        const ChevronUp = (props) => <Icon {...props}><polyline points="18 15 12 9 6 15"/></Icon>;
+        const Tag = (props) => <Icon {...props}><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></Icon>;
+        const Eye = (props) => <Icon {...props}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></Icon>;
+        const EyeOff = (props) => <Icon {...props}><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></Icon>;
+        const FileText = (props) => <Icon {...props}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></Icon>;
+        const List = (props) => <Icon {...props}><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></Icon>;
+
+
+        // --- DATA ---
+        const SyllabusModules = {
+          I: { title: "Module I", subtitle: "Concepts, Procurement & Manufacturing", icon: <BookOpen size={20} /> },
+          II: { title: "Module II", subtitle: "Management, Economics & Human Factors", icon: <Users size={20} /> },
+          III: { title: "Module III", subtitle: "Statistical Quality Control (Control Charts)", icon: <BarChart3 size={20} /> },
+          IV: { title: "Module IV", subtitle: "Reliability, ISO 9000 & Advanced Methods", icon: <Settings size={20} /> },
+        };
+
+        const SyllabusContent = [
+          {
+            module: "I",
+            title: "Quality Concepts & Manufacturing",
+            sections: [
+              {
+                header: "Quality Concepts",
+                content: "Evolution of Quality control, Concept change, TQM Modern concept, Quality concept in design, Review of design, Evolution of prototype."
+              },
+              {
+                header: "Control on Purchased Product",
+                content: "Procurement of various products, Evaluation of supplies, Capacity verification, Development of sources, Procurement procedure."
+              },
+              {
+                header: "Manufacturing Quality",
+                content: "Methods and Techniques for manufacture, Inspection and control of product, Quality in sales and services, Guarantee, analysis of claims."
+              }
+            ]
+          },
+          {
+            module: "II",
+            title: "Management & Human Factors",
+            sections: [
+              {
+                header: "Quality Management",
+                content: "Organization structure and design, Quality function, Decentralization, Designing and fitting organization for different types of products, Economics of quality value and contribution, Quality cost, Optimizing quality cost."
+              },
+              {
+                header: "Human Factor in Quality",
+                content: "Attitude of top management, Co-operation of groups, Operators attitude, responsibility, Causes of operator's error and corrective methods."
+              }
+            ]
+          },
+          {
+            module: "III",
+            title: "Statistical Quality Control",
+            sections: [
+              {
+                header: "Control Charts",
+                content: "Theory of control charts, Measurement range, Construction and analysis of R charts, Process capability study, Use of control charts."
+              },
+              {
+                header: "Attributes of Control Charts",
+                content: "Defects, Construction and analysis of p-chart, Improvement by control chart, Variable sample size, Construction and analysis of C-chart."
+              }
+            ]
+          },
+          {
+            module: "IV",
+            title: "Reliability & Standards",
+            sections: [
+              {
+                header: "Defects Diagnosis and Prevention",
+                content: "Defect study, Identification and analysis of defects, Corrective measure, Factors affecting reliability, MTTF, Calculation of reliability, Building reliability in the product, Evaluation of reliability, Interpretation of test results, Reliability control, Maintainability, Zero defects, Quality circle."
+              },
+              {
+                header: "ISO-9000 and its concept of Quality Management",
+                content: "ISO 9000 series, Taguchi method, JIT in some details."
+              }
+            ]
+          }
+        ];
+
+        const rawQuestions = [
+            // --- Module I: Concepts, Procurement, Manufacturing ---
+            { 
+                id: 1, 
+                q: "What are the dimensions of quality?", 
+                a: "David Garvin defined 8 dimensions: 1. Performance (primary operating characteristics), 2. Features (bells & whistles), 3. Reliability (probability of failing), 4. Conformance (meeting standards), 5. Durability (product life), 6. Serviceability (ease of repair), 7. Aesthetics (look/feel), 8. Perceived Quality (reputation).", 
+                module: "I", source: "PYQ", topic: "Intro & Concepts" 
+            },
+            { 
+                id: 2, 
+                q: "What is mission statement?", 
+                a: "A concise explanation of the organization's reason for existence. It describes the organization's purpose and its overall intention. In TQM, it guides the quality policy.", 
+                module: "I", source: "PYQ", topic: "Intro & Concepts" 
+            },
+            { 
+                id: 3, 
+                q: "Define quality hierarchy.", 
+                a: "The evolution/levels of quality management: 1. Inspection (detection), 2. Quality Control (process control), 3. Quality Assurance (prevention/system), 4. Total Quality Management (continuous improvement/culture).", 
+                module: "I", source: "PYQ", topic: "Intro & Concepts" 
+            },
+            { 
+                id: 5, 
+                q: "What do you mean by procurement? Explain.", 
+                a: "Procurement is the strategic process of sourcing and acquiring the goods and services an organization needs to fulfill its business model. It involves identifying needs, sourcing suppliers, negotiating terms, and acquiring goods.", 
+                module: "I", source: "PYQ", topic: "Procurement" 
+            },
+            { 
+                id: 7, 
+                q: "How can organizations effectively implement these controls to ensure a reliable supply chain?", 
+                a: "By using: 1. Vendor rating systems, 2. Regular supplier audits, 3. Incoming material inspection, 4. Clear technical specifications, 5. Long-term partnerships (Supply Chain Management).", 
+                module: "I", source: "PYQ", topic: "Procurement" 
+            },
+            { 
+                id: 8, 
+                q: "Explain the process of bench marking. Is it effective in bringing organization changes?", 
+                a: "Benchmarking is measuring products/services/processes against the toughest competitors or industry leaders. Process: Plan -> Analysis -> Integration -> Action -> Maturity. Yes, it forces organizations to look outside for best practices and drives change by identifying performance gaps.", 
+                module: "I", source: "PYQ", topic: "TQM & Benchmarking" 
+            },
+            { 
+                id: 16, 
+                q: "How to understand review of design?", 
+                a: "Design Review is a formal, documented, comprehensive and systematic examination of a design to evaluate its capability to fulfill requirements. It identifies problems early in the design phase before production begins.", 
+                module: "I", source: "PYQ", topic: "Design Quality" 
+            },
+            { 
+                id: 17, 
+                q: "How claim analysis is done?", 
+                a: "Claim analysis involves examining warranty claims and customer complaints to identify failure modes. Data is categorized by defect type, model, and time-to-failure to find root causes and improve future designs.", 
+                module: "I", source: "PYQ", topic: "Mfg & Sales" 
+            },
+            { 
+                id: 18, 
+                q: "What is strategic sourcing?", 
+                a: "A procurement process that connects data collection, spend analysis, market research, negotiation, and contracting. It focuses on long-term supplier relationships and total cost of ownership rather than just lowest purchase price.", 
+                module: "I", source: "PYQ", topic: "Procurement" 
+            },
+            { 
+                id: 24, 
+                q: "Define quality planning?", 
+                a: "A structured process for defining quality standards for a project and deciding how to meet them. It involves identifying customers, determining their needs, and developing product features and processes to meet those needs (Juran's Trilogy).", 
+                module: "I", source: "PYQ", topic: "Intro & Concepts" 
+            },
+            { 
+                id: 35, 
+                q: "Explain the procurement procedure in detail with the help of flow chart.", 
+                a: "Typical Flow: 1. Need Recognition -> 2. Requisition -> 3. Supplier Selection/RFQ -> 4. PO Issuance -> 5. Receipt of Goods -> 6. Inspection/Quality Check -> 7. Invoice Approval -> 8. Payment.", 
+                module: "I", source: "PYQ", topic: "Procurement" 
+            },
+            { 
+                id: 40, 
+                q: "Explain the evolution of quality control from its early beginnings to the introduction of six sigma.", 
+                a: "1. Operator Control (Craftsmanship) -> 2. Foreman Control (Industrial Rev) -> 3. Inspection (1920s) -> 4. Statistical Quality Control (Shewhart, 1930s) -> 5. Total Quality Control (Feigenbaum, 1950s) -> 6. TQM (1980s) -> 7. Six Sigma (Motorola/GE, 1990s - reducing variation).", 
+                module: "I", source: "PYQ", topic: "Intro & Concepts" 
+            },
+            { 
+                id: 42, 
+                q: "Trace the evolution of quality control from its early stages to Total Quality Management (TQM).", 
+                a: "Moved from 'sorting bad from good' (Inspection) to 'controlling the process' (SQC), then to 'designing quality in' (QA), and finally to 'whole organization culture and continuous improvement' (TQM).", 
+                module: "I", source: "Assignment", topic: "Intro & Concepts" 
+            },
+            { 
+                id: 43, 
+                q: "How does the modern concept of quality differ from traditional views, particularly in the design phase?", 
+                a: "Traditional: 'Inspect quality in' after production. Modern: 'Design quality in' (prevention). Modern quality starts at the drawing board (Taguchi methods, Robust Design) to minimize sensitivity to variation.", 
+                module: "I", source: "Assignment", topic: "Design Quality" 
+            },
+            { 
+                id: 44, 
+                q: "Discuss the importance of incorporating quality during product design.", 
+                a: "70-80% of product costs and quality issues are locked in during design. Fixing a defect in design costs $1; in production $10; in the field $100. Good design ensures manufacturability and reliability.", 
+                module: "I", source: "Assignment", topic: "Design Quality" 
+            },
+            { 
+                id: 45, 
+                q: "Explain the roles of design review and prototype evolution in ensuring product quality.", 
+                a: "Design Review checks requirements against specifications. Prototype evolution involves building iterative models (Alpha, Beta) to test functionality, fit, and failure modes in the real world before mass production.", 
+                module: "I", source: "Assignment", topic: "Design Quality" 
+            },
+            { 
+                id: 46, 
+                q: "Outline the key steps in a standard procurement procedure.", 
+                a: "Identify Need -> Select Supplier -> Negotiate Price -> Purchase Order -> Receive Goods -> Quality Inspection -> Payment.", 
+                module: "I", source: "Assignment", topic: "Procurement" 
+            },
+            { 
+                id: 47, 
+                q: "What is the importance of evaluating supplies and verifying a supplier's capacity?", 
+                a: "To ensure the supplier can meet demand (quantity) and specs (quality) consistently. It prevents supply chain bottlenecks and ensures the vendor is financially stable and technically capable.", 
+                module: "I", source: "Assignment", topic: "Procurement" 
+            },
+            { 
+                id: 48, 
+                q: "Explain the role and benefits of supplier development.", 
+                a: "Supplier development involves working with vendors to improve their processes. Benefits: Lower costs, better quality, faster delivery, and innovation sharing. It turns suppliers into partners.", 
+                module: "I", source: "Assignment", topic: "Procurement" 
+            },
+            { 
+                id: 49, 
+                q: "Describe common methods for quality inspection and control during manufacturing.", 
+                a: "1. 100% Inspection (costly, fatigue-prone), 2. Sampling Inspection (AQL based), 3. First Article Inspection, 4. Patrol/Floor Inspection, 5. SPC (Control Charts).", 
+                module: "I", source: "Assignment", topic: "Mfg & Sales" 
+            },
+            { 
+                id: 50, 
+                q: "How does a company extend its quality commitment to sales and services?", 
+                a: "Through after-sales support, warranty management, customer feedback loops, user manuals, and training. Service quality is judged by responsiveness, assurance, and empathy.", 
+                module: "I", source: "Assignment", topic: "Mfg & Sales" 
+            },
+            { 
+                id: 51, 
+                q: "Explain how handling customer claims and guarantees contributes to product improvement.", 
+                a: "Claims provide real-world failure data. Analyzing this data highlights design weaknesses or manufacturing flaws, leading to corrective actions (CAPA) in future batches.", 
+                module: "I", source: "Assignment", topic: "Mfg & Sales" 
+            },
+            { 
+                id: 58, 
+                q: "What do you understand by procurement?", 
+                a: "The act of obtaining goods or services, typically for business purposes. It is a key part of supply chain management involving strategy, selection, and contract management.", 
+                module: "I", source: "Bank", topic: "Procurement" 
+            },
+            { 
+                id: 65, 
+                q: "Explain the modern concept of quality and its importance in today's competitive global market.", 
+                a: "Modern quality is 'Customer Satisfaction' + 'Continuous Improvement'. In a global market, quality is an order qualifier; without it, you cannot compete. It builds brand loyalty and reduces waste costs.", 
+                module: "I", source: "Bank", topic: "Intro & Concepts" 
+            },
+            { 
+                id: 69, 
+                q: "Explain the step involved in controlling the quality of purchased products.", 
+                a: "1. Vendor capability survey, 2. Clear specs in PO, 3. Incoming inspection (sampling plans), 4. Vendor rating/scorecards, 5. Corrective action requests for non-conformance.", 
+                module: "I", source: "Bank", topic: "Procurement" 
+            },
+            { 
+                id: 70, 
+                q: "Explain the concept of quality in sales and services.", 
+                a: "Service quality differs from product quality (intangible, inseparable). It involves meeting customer expectations in interaction, timeliness, and problem resolution (SERVQUAL model).", 
+                module: "I", source: "Bank", topic: "Mfg & Sales" 
+            },
+            { 
+                id: 71, 
+                q: "Discuss the role of inspection and product control in maintaining manufacturing quality.", 
+                a: "Inspection acts as a filter to stop defects reaching customers. Product control involves monitoring the product characteristics against specs at various stages (Raw material, WIP, Final).", 
+                module: "I", source: "Bank", topic: "Mfg & Sales" 
+            },
+            { 
+                id: 100, 
+                q: "Explain the evolution of quality control from traditional inspection methods to modern Total Quality Management (TQM) philosophy.", 
+                a: "Shift from reactive (fixing defects) to proactive (preventing defects). Traditional relied on 'Quality Control Departments'; TQM makes quality everyone's responsibility.", 
+                module: "I", source: "Bank", topic: "Intro & Concepts" 
+            },
+            { 
+                id: 101, 
+                q: "Discuss the concept change in quality control from product-based inspection to process-oriented quality management.", 
+                a: "Product-based checks the output (good/bad). Process-oriented controls the inputs and machine parameters to ensure the output *must* be good. If the process is right, the product is right.", 
+                module: "I", source: "Bank", topic: "Intro & Concepts" 
+            },
+            { 
+                id: 103, 
+                q: "Describe the importance of quality in design. How can design review and evolution of prototypes help in improving product quality?", 
+                a: "Design dictates performance limits. Design reviews catch errors on paper (cheap to fix). Prototypes validate the design in physical form, highlighting assembly issues or structural weaknesses.", 
+                module: "I", source: "Bank", topic: "Design Quality" 
+            },
+            { 
+                id: 104, 
+                q: "Discuss the procurement procedure and the importance of evaluation and development of suppliers in ensuring product quality.", 
+                a: "Procurement isn't just buying; it's extending the factory. Evaluating suppliers ensures they have the process capability (Cp/Cpk) to deliver quality parts, reducing rejection rates on the assembly line.", 
+                module: "I", source: "Bank", topic: "Procurement" 
+            },
+
+            // --- Module II: Management, Economics, Human Factors ---
+            { 
+                id: 9, 
+                q: "Discuss how employee involvement contributes to the success of TQM.", 
+                a: "Employees are closest to the process and know the problems best. Involvement (Empowerment, Suggestions, Quality Circles) leads to better morale, ownership of quality, and faster problem solving.", 
+                module: "II", source: "PYQ", topic: "Human Factors" 
+            },
+            { 
+                id: 10, 
+                q: "Write a note on the organization structure and design of quality management.", 
+                a: "Ideally, the Quality Dept should report directly to Top Mgmt (CEO/Plant Mgr) to maintain independence from Production. It can be centralized (one QC dept) or decentralized (QC embedded in production teams).", 
+                module: "II", source: "PYQ", topic: "Org Structure" 
+            },
+            { 
+                id: 13, 
+                q: "Distinguish between quality and total quality management systems.", 
+                a: "Quality usually refers to the product meeting specs. TQM is a management approach where the *entire* organization (HR, Finance, Mfg) participates in continuous improvement to satisfy customers.", 
+                module: "II", source: "PYQ", topic: "TQM & Benchmarking" 
+            },
+            { 
+                id: 22, 
+                q: "Define causes of operator's error.", 
+                a: "1. Lack of training/skill, 2. Fatigue/Stress, 3. Ambiguous instructions, 4. Poor workplace design (Ergonomics), 5. Lack of motivation/attention.", 
+                module: "II", source: "PYQ", topic: "Human Factors" 
+            },
+            { 
+                id: 25, 
+                q: "Define optimizing quality cost.", 
+                a: "Finding the balance point where the sum of Prevention/Appraisal costs and Failure costs is lowest. Ideally, spending more on Prevention drastically reduces Failure costs.", 
+                module: "II", source: "PYQ", topic: "Cost of Quality" 
+            },
+            { 
+                id: 27, 
+                q: "Explain about customer satisfaction.", 
+                a: "The degree to which a product meets or exceeds customer expectations. It is the primary goal of TQM. Measured via feedback, repeat business, and Net Promoter Score (NPS).", 
+                module: "II", source: "PYQ", topic: "TQM & Benchmarking" 
+            },
+            { 
+                id: 28, 
+                q: "What is the need for separate quality accounting system? What is quality policy statement?", 
+                a: "Need: Normal accounting hides quality costs in 'overheads'. A separate system tracks Cost of Poor Quality (COPQ). Policy Statement: Top management's formal declaration of commitment to quality goals.", 
+                module: "II", source: "PYQ", topic: "Org Structure" 
+            },
+            { 
+                id: 29, 
+                q: "Discuss various human factors in quality attitude of top management.", 
+                a: "Top management must show 'Leadership'. If they prioritize volume over quality, workers will too. Their attitude determines the 'Quality Culture'. They must provide resources and remove barriers.", 
+                module: "II", source: "PYQ", topic: "Human Factors" 
+            },
+            { 
+                id: 36, 
+                q: "What is quality cost and optimizing quality cost. Explain any one.", 
+                a: "Quality Costs (COQ) = Prevention + Appraisal + Internal Failure + External Failure. Optimization means investing in Prevention (training, design) to minimize expensive Failures (recalls, scrap).", 
+                module: "II", source: "PYQ", topic: "Cost of Quality" 
+            },
+            { 
+                id: 38, 
+                q: "Explain the following with example: (i) Quality value and contribution (ii) Quality cost and its optimization", 
+                a: "(i) Value: Quality increases perceived value, allowing higher prices or market share. (ii) Optimization: Spending $10k on training (Prevention) to save $100k in scrap (Failure).", 
+                module: "II", source: "PYQ", topic: "Cost of Quality" 
+            },
+            { 
+                id: 41, 
+                q: "What are the obstacles in implementing TQM? How it can be overcome?", 
+                a: "Obstacles: Resistance to change, lack of top management commitment, short-term focus, lack of training. Overcome by: Strong leadership, training, clear communication, and reward systems.", 
+                module: "II", source: "PYQ", topic: "TQM & Benchmarking" 
+            },
+            { 
+                id: 57, 
+                q: "What is total quality management?", 
+                a: "A management approach for an organization, centered on quality, based on the participation of all its members and aiming at long-term success through customer satisfaction.", 
+                module: "II", source: "Bank", topic: "TQM & Benchmarking" 
+            },
+            { 
+                id: 59, 
+                q: "What are quality costs?", 
+                a: "Costs incurred to prevent defects (Prevention), check for defects (Appraisal), and costs resulting from defects (Internal/External Failures).", 
+                module: "II", source: "Bank", topic: "Cost of Quality" 
+            },
+            { 
+                id: 60, 
+                q: "Why is important the role of human factors in quality control?", 
+                a: "Machines don't make mistakes; people do. Motivation, training, and ergonomics are critical because the human element is often the source of variation in a process.", 
+                module: "II", source: "Bank", topic: "Human Factors" 
+            },
+            { 
+                id: 66, 
+                q: "Discuss how an organization can be designed and fitted for different types of products to maintain quality standards.", 
+                a: "Mass production needs rigid, centralized QC. Job shop/Custom production needs decentralized, flexible QC where operators check their own work. High-tech needs heavy R&D quality focus.", 
+                module: "II", source: "Bank", topic: "Org Structure" 
+            },
+            { 
+                id: 72, 
+                q: "Discuss the methods of optimizing quality cost in manufacturing industries.", 
+                a: "1. Pareto Analysis to find biggest failure costs. 2. Root cause analysis to eliminate them. 3. Invest in automatic inspection (Appraisal) or Poka-Yoke (Prevention).", 
+                module: "II", source: "Bank", topic: "Cost of Quality" 
+            },
+            { 
+                id: 73, 
+                q: "Explain the role of human factors in quality control.", 
+                a: "Human factors engineering (Ergonomics) designs the job to fit the worker, reducing errors caused by fatigue or confusion. It also involves psychological factors like motivation.", 
+                module: "II", source: "Bank", topic: "Human Factors" 
+            },
+            { 
+                id: 74, 
+                q: "Discuss the attitude of top management and its effect on overall quality performance.", 
+                a: "The 'Shadow of the Leader'. If management walks the talk on quality, the organization follows. If they cut corners, quality collapses. Their commitment is the #1 success factor for TQM.", 
+                module: "II", source: "Bank", topic: "Human Factors" 
+            },
+            { 
+                id: 87, 
+                q: "Distinguish between Quality and Total Quality Management (TQM).", 
+                a: "Quality is an outcome (good product). TQM is a philosophy/system (continuous improvement involving everyone). Quality is technical; TQM is cultural.", 
+                module: "II", source: "Notes", topic: "TQM & Benchmarking" 
+            },
+            { 
+                id: 102, 
+                q: "What is Total Quality Management (TQM)? Explain its principles and benefits in modern industries.", 
+                a: "Principles: Customer Focus, Continuous Improvement, Employee Involvement, Process Approach. Benefits: Reduced waste, higher customer loyalty, better market share, higher profitability.", 
+                module: "II", source: "Bank", topic: "TQM & Benchmarking" 
+            },
+            { 
+                id: 107, 
+                q: "Explain the functions of quality department and the role of decentralization in quality control.", 
+                a: "Functions: Standard setting, Audit, Training, Lab testing. Decentralization places QC inspectors on the production line, giving faster feedback to operators, rather than a remote lab.", 
+                module: "II", source: "Bank", topic: "Org Structure" 
+            },
+            { 
+                id: 108, 
+                q: "Explain the economics of quality and the concept of value and contribution in product development.", 
+                a: "Quality is not just a cost; it adds value. High quality allows for premium pricing (contribution margin). The 'Hidden Factory' (rework) destroys economic value.", 
+                module: "II", source: "Bank", topic: "Cost of Quality" 
+            },
+            { 
+                id: 109, 
+                q: "What are quality costs? Explain different categories of quality costs with examples.", 
+                a: "1. Prevention (Training, Design reviews), 2. Appraisal (Inspection, Testing), 3. Internal Failure (Scrap, Rework), 4. External Failure (Warranty, Lawsuits, Lost Sales).", 
+                module: "II", source: "Bank", topic: "Cost of Quality" 
+            },
+            { 
+                id: 110, 
+                q: "Describe the importance of cooperation among groups and operators’ responsibility in maintaining quality.", 
+                a: "Quality problems often happen at interfaces (handoffs between groups). Cooperation ensures cross-functional problem solving. Operators must feel responsible ('Quality at the Source') rather than relying on inspectors.", 
+                module: "II", source: "Bank", topic: "Human Factors" 
+            },
+            { 
+                id: 111, 
+                q: "Identify causes of human error in production and explain corrective methods to prevent them.", 
+                a: "Causes: Complexity, Distraction, Fatigue. Corrective Methods: Standardization (SOPs), Training, Mistake-Proofing (Poka-Yoke), Automation, Better lighting/environment.", 
+                module: "II", source: "Bank", topic: "Human Factors" 
+            },
+
+            // --- Module III: Statistical Quality Control (SQC) ---
+            { 
+                id: 11, 
+                q: "Narrate the process of conducting quality audit in a manufacturing firms and usage of various control charts.", 
+                a: "Audit: Plan -> Conduct -> Report -> Follow-up. Control charts (X-bar/R) are used during the audit to verify if processes are stable and within control limits over time.", 
+                module: "III", source: "PYQ", topic: "SQC General" 
+            },
+            { 
+                id: 20, 
+                q: "What do you understand by quality audit?", 
+                a: "A systematic, independent, and documented process for obtaining evidence and evaluating it objectively to determine the extent to which quality criteria are fulfilled (ISO 19011).", 
+                module: "III", source: "PYQ", topic: "SQC General" 
+            },
+            { 
+                id: 31, 
+                q: "What is R-chart?", 
+                a: "A Range chart used in conjunction with X-bar charts. It plots the range (Max - Min) of each sample subgroup to monitor the variability/dispersion of the process.", 
+                module: "III", source: "PYQ", topic: "Variable Charts (X/R)" 
+            },
+            { 
+                id: 32, 
+                q: "What are control charts? Discuss.", 
+                a: "Statistical tools used to distinguish between common cause variation (random) and assignable cause variation (specific problem). They consist of a Center Line (Average), Upper Control Limit (UCL), and Lower Control Limit (LCL).", 
+                module: "III", source: "PYQ", topic: "SQC General" 
+            },
+            { 
+                id: 33, 
+                q: "Explain the construction of X-bar and R-control charts. Where are they used?", 
+                a: "Used for Variable data (measurements like length, weight). 1. Collect 20-25 subgroups of data. 2. Calculate Mean (X-bar) and Range (R) for each. 3. Calculate Grand Mean and Average Range. 4. Plot limits using constants (A2, D3, D4).", 
+                module: "III", source: "PYQ", topic: "Variable Charts (X/R)" 
+            },
+            { 
+                id: 34, 
+                q: "What do you mean by process capability study? Discuss with suitable example.", 
+                a: "Comparing the 'Voice of the Process' (Control Limits) with the 'Voice of the Customer' (Spec Limits). Indices: Cp (potential) and Cpk (actual centering). Example: If a machine cuts rods ±1mm but specs allow ±2mm, it is capable.", 
+                module: "III", source: "PYQ", topic: "Process Capability" 
+            },
+            { 
+                id: 37, 
+                q: "What is control chart? Discuss application of various charts.", 
+                a: "Variable Charts: X-bar/R (small samples), X-bar/S (large samples). Attribute Charts: p-chart (fraction defective), np-chart (number defective), c-chart (count of defects, fixed area), u-chart (count of defects, variable area).", 
+                module: "III", source: "PYQ", topic: "SQC General" 
+            },
+            { 
+                id: 52, 
+                q: "The R-chart is used to control?", 
+                a: "The variability, dispersion, or spread of a process.", 
+                module: "III", source: "Bank", topic: "Variable Charts (X/R)" 
+            },
+            { 
+                id: 53, 
+                q: "If process variation is within control limits, it is:", 
+                a: "In a state of statistical control (stable). Only common causes of variation are present.", 
+                module: "III", source: "Bank", topic: "SQC General" 
+            },
+            { 
+                id: 54, 
+                q: "Variable control charts deal with...", 
+                a: "Measurable data (continuous variables) such as length, weight, temperature, time, or pressure.", 
+                module: "III", source: "Bank", topic: "Variable Charts (X/R)" 
+            },
+            { 
+                id: 61, 
+                q: "What is control chart?", 
+                a: "A graphical display of process data over time, used to separate signal (special causes) from noise (common causes).", 
+                module: "III", source: "Bank", topic: "SQC General" 
+            },
+            { 
+                id: 62, 
+                q: "Define p-chart.", 
+                a: "An Attribute control chart used to monitor the 'proportion' or fraction of defective items in a sample (e.g., % of forms with errors). Sample size can vary.", 
+                module: "III", source: "Bank", topic: "Attribute Charts (P/C)" 
+            },
+            { 
+                id: 67, 
+                q: "Describe the steps involved in the construction and analysis of R-charts.", 
+                a: "1. Gather data k subgroups size n. 2. Find range R for each. 3. Find R-bar. 4. UCL = D4 * R-bar, LCL = D3 * R-bar. 5. Plot. Analysis: If points are outside limits or show a trend, variability is out of control.", 
+                module: "III", source: "Bank", topic: "Variable Charts (X/R)" 
+            },
+            { 
+                id: 75, 
+                q: "Explain how control charts can help in process improvement and defect reduction.", 
+                a: "They signal *when* to intervene. By identifying special causes (spikes), operators can fix root causes immediately. By reducing common causes (narrowing limits), quality improves systematically.", 
+                module: "III", source: "Bank", topic: "SQC General" 
+            },
+            { 
+                id: 76, 
+                q: "Discuss the uses of control charts.", 
+                a: "1. Proven stability of process. 2. Signal process changes. 3. Reduce inspection frequency. 4. Determine process capability.", 
+                module: "III", source: "Bank", topic: "SQC General" 
+            },
+            { 
+                id: 77, 
+                q: "Discuss the effect of variable sample size on control charts and how it is managed.", 
+                a: "If sample size (n) changes, the control limits (UCL/LCL) change (width varies inversely with sqrt(n)). Result: 'Stepped' control limits on the chart. p-charts and u-charts often handle this.", 
+                module: "III", source: "Bank", topic: "Process Capability" 
+            },
+            { 
+                id: 81, 
+                q: "Discuss how control charts help in maintaining product quality.", 
+                a: "They act as an early warning system. Instead of waiting for defects (post-production), they show if the process is drifting, allowing correction *before* bad parts are made.", 
+                module: "III", source: "Bank", topic: "SQC General" 
+            },
+            { 
+                id: 82, 
+                q: "Differentiate between variable and attribute control charts with examples.", 
+                a: "Variable: Measures 'how much' (X-bar/R, e.g., Diameter in mm). Attribute: Measures 'good/bad' or 'how many' (p-chart, c-chart, e.g., Scratches on a car, Pass/Fail).", 
+                module: "III", source: "Bank", topic: "SQC General" 
+            },
+            { 
+                id: 94, 
+                q: "Differentiate between p-chart and c-chart. Provide examples for each.", 
+                a: "p-chart: Proportion defective (Sample size n varies or >1, e.g., % of bad bulbs). c-chart: Count of defects per unit (Sample size fixed/constant, e.g., Number of pinholes in 1 sq meter of fabric).", 
+                module: "III", source: "Notes", topic: "Attribute Charts (P/C)" 
+            },
+            { 
+                id: 112, 
+                q: "Explain the theory and purpose of control charts in quality control.", 
+                a: "Theory: Based on Normal Distribution and 3-Sigma limits. Purpose: To achieve process stability by eliminating special cause variation.", 
+                module: "III", source: "Bank", topic: "SQC General" 
+            },
+            { 
+                id: 113, 
+                q: "How can control charts be used for monitoring process stability and variation?", 
+                a: "X-bar chart monitors stability of the Mean (centering). R chart monitors stability of Variance (spread). Both must be in control for the process to be stable.", 
+                module: "III", source: "Bank", topic: "SQC General" 
+            },
+            { 
+                id: 115, 
+                q: "Define attributes of control charts. How are they different from variable control charts?", 
+                a: "Attributes are qualitative data (Discrete). They are generally cheaper to collect but require larger sample sizes than Variable charts to be statistically significant.", 
+                module: "III", source: "Bank", topic: "Attribute Charts (P/C)" 
+            },
+            { 
+                id: 116, 
+                q: "Explain the construction and analysis of p-charts with suitable examples.", 
+                a: "Calculate fraction defective p for each subgroup. Calculate avg p-bar. Limits = p-bar ± 3*sqrt(p-bar(1-p-bar)/n). Used for Pass/Fail inspection data.", 
+                module: "III", source: "Bank", topic: "Attribute Charts (P/C)" 
+            },
+            { 
+                id: 117, 
+                q: "Describe the construction and analysis of c-charts and their applications in industry.", 
+                a: "c = count of defects. c-bar = avg defects. Limits = c-bar ± 3*sqrt(c-bar). Application: Counting bugs in software code, rivets missing on a wing, imperfections on a painted surface.", 
+                module: "III", source: "Bank", topic: "Attribute Charts (P/C)" 
+            },
+
+            // --- Module IV: Reliability, ISO, Advanced Methods ---
+            { 
+                id: 4, 
+                q: "What is zero defect? Explain.", 
+                a: "A philosophy by Philip Crosby. It means 'Do it right the first time'. It rejects the idea of an 'Acceptable Quality Level' (AQL) and argues that the only acceptable standard is zero defects.", 
+                module: "IV", source: "PYQ", topic: "Adv. Techniques" 
+            },
+            { 
+                id: 6, 
+                q: "What does ISO 9001 : 2000 signify?", 
+                a: "A version of the ISO standard that shifted focus from just 'Quality Assurance' to 'Process Management' and 'Customer Satisfaction'. It introduced the Plan-Do-Check-Act cycle structure.", 
+                module: "IV", source: "PYQ", topic: "ISO Standards" 
+            },
+            { 
+                id: 12, 
+                q: "Why is a multi-function worker required in JIT?", 
+                a: "In JIT (Lean), cells require flexibility. If demand changes or a colleague is absent, a worker must handle multiple machines or tasks to maintain the 'Takt Time' flow without building inventory.", 
+                module: "IV", source: "PYQ", topic: "JIT & Lean" 
+            },
+            { 
+                id: 14, 
+                q: "What is an ISO 9000 and its concept to quality management?", 
+                a: "ISO 9000 is a family of standards for Quality Management Systems (QMS). Concept: Document what you do, do what you document. It ensures consistency and confidence in international trade.", 
+                module: "IV", source: "PYQ", topic: "ISO Standards" 
+            },
+            { 
+                id: 19, 
+                q: "Define MTTR (Mean Time To Repair).", 
+                a: "The average time required to troubleshoot and repair a failed component and return it to operating condition. It is a measure of Maintainability.", 
+                module: "IV", source: "PYQ", topic: "Reliability" 
+            },
+            { 
+                id: 21, 
+                q: "Define 5s.", 
+                a: "A workplace organization method: 1. Seiri (Sort), 2. Seiton (Set in order), 3. Seiso (Shine), 4. Seiketsu (Standardize), 5. Shitsuke (Sustain). It reduces waste and improves safety.", 
+                module: "IV", source: "PYQ", topic: "JIT & Lean" 
+            },
+            { 
+                id: 23, 
+                q: "Which ISO standard is specifically related to quality management systems?", 
+                a: "ISO 9001. (Note: ISO 9000 is vocabulary, 9004 is improvement, but 9001 is the requirements standard used for certification).", 
+                module: "IV", source: "PYQ", topic: "ISO Standards" 
+            },
+            { 
+                id: 26, 
+                q: "What do you understand by waste elimination? Explain.", 
+                a: "The core of JIT/Lean. Identifying and removing 'Muda'. 7 Wastes: Overproduction, Waiting, Transport, Overprocessing, Inventory, Motion, Defects.", 
+                module: "IV", source: "PYQ", topic: "JIT & Lean" 
+            },
+            { 
+                id: 30, 
+                q: "What is JIT production?", 
+                a: "Just-In-Time: A pull system where items are created to meet demand, not created in surplus or in advance of need. Goal: Zero inventory, Zero waste.", 
+                module: "IV", source: "PYQ", topic: "JIT & Lean" 
+            },
+            { 
+                id: 39, 
+                q: "Short notes: (i) MTTF (ii) Quality circle (iii) Zero defects", 
+                a: "(i) MTTF: Mean Time To Failure - avg lifespan of a non-repairable item. (ii) Quality Circle: Small group of workers meeting voluntarily to solve work problems. (iii) Zero Defects: Crosby's standard of no errors.", 
+                module: "IV", source: "PYQ", topic: "Adv. Techniques" 
+            },
+            { 
+                id: 55, 
+                q: "Zero Defects philosophy was introduced by...", 
+                a: "Philip Crosby.", 
+                module: "IV", source: "Bank", topic: "Adv. Techniques" 
+            },
+            { 
+                id: 63, 
+                q: "Write the full form of MTTF.", 
+                a: "Mean Time To Failure.", 
+                module: "IV", source: "Bank", topic: "Reliability" 
+            },
+            { 
+                id: 64, 
+                q: "What is zero defects?", 
+                a: "A performance standard where the aim is to execute every task correctly the first time. It emphasizes prevention over inspection.", 
+                module: "IV", source: "Bank", topic: "Adv. Techniques" 
+            },
+            { 
+                id: 68, 
+                q: "Describe the role and benefits of quality circles in improving product quality.", 
+                a: "Role: Bottom-up problem solving. Benefits: Unlocks worker creativity, improves morale, solves chronic micro-problems that engineers might miss, and improves team cohesion.", 
+                module: "IV", source: "Bank", topic: "Adv. Techniques" 
+            },
+            { 
+                id: 78, 
+                q: "Explain the factors affecting reliability and methods of calculating mean time to failure.", 
+                a: "Factors: Design complexity, component quality, environment (heat/vibration). MTTF Calculation: Total operating hours / Number of failures (for constant failure rate).", 
+                module: "IV", source: "Bank", topic: "Reliability" 
+            },
+            { 
+                id: 79, 
+                q: "Explain the ISO: 9000 series and its importance in international quality management system.", 
+                a: "It provides a common language and baseline for quality globally. Importance: Facilitates trade (you trust the supplier's process), ensures legal compliance, and drives internal efficiency.", 
+                module: "IV", source: "Bank", topic: "ISO Standards" 
+            },
+            { 
+                id: 80, 
+                q: "Explain the concept of Just-in-time.", 
+                a: "JIT is about 'Right part, right quantity, right time'. It exposes hidden problems (the 'rocks in the river' analogy) by lowering inventory water levels, forcing process improvements.", 
+                module: "IV", source: "Bank", topic: "JIT & Lean" 
+            },
+            { 
+                id: 83, 
+                q: "Describe the ISO 9000 quality standards.", 
+                a: "The family includes ISO 9000 (Fundamentals/Vocab), ISO 9001 (Requirements - the one you certify to), and ISO 9004 (Guidance for sustained success). Focuses on QMS.", 
+                module: "IV", source: "Bank", topic: "ISO Standards" 
+            },
+            { 
+                id: 84, 
+                q: "Describe the concept of maintainability and its relation to reliability. Explain also the Taguchi method in quality improvement.", 
+                a: "Reliability = how long it lasts (MTTF). Maintainability = how fast it fixes (MTTR). Together they determine Availability. Taguchi: Focuses on 'Loss Function' and Robust Design (making product immune to noise) using Orthogonal Arrays.", 
+                module: "IV", source: "Bank", topic: "Reliability" 
+            },
+            { 
+                id: 118, 
+                q: "Explain the steps involved in defect study, identification, and analysis.", 
+                a: "1. Data Collection (Check sheets). 2. Visualization (Pareto, Histogram). 3. Root Cause Analysis (Fishbone/Ishikawa). 4. Validation of root cause. 5. Corrective Action.", 
+                module: "IV", source: "Bank", topic: "Reliability" 
+            },
+            { 
+                id: 119, 
+                q: "Discuss the corrective measures taken for defect prevention in production systems.", 
+                a: "1. Redesign product (DFMA). 2. Poka-Yoke (mistake-proofing jigs). 3. Preventive Maintenance of machines. 4. Operator Training. 5. Supplier Quality improvement.", 
+                module: "IV", source: "Bank", topic: "Reliability" 
+            },
+            { 
+                id: 120, 
+                q: "Explain the interpretation of reliability test results and the concept of reliability control.", 
+                a: "Bathtub Curve interpretation: Infant mortality (burn-in needed), Random failures (useful life), Wear-out (replace). Control involves monitoring failure rates to predict maintenance needs.", 
+                module: "IV", source: "Bank", topic: "Reliability" 
+            },
+            { 
+                id: 121, 
+                q: "What do you understand by maintainability and zero defects? Explain their importance in quality assurance.", 
+                a: "Maintainability ensures high availability. Zero Defects drives the culture of perfection. Both ensure the customer gets a working product and keeps it working.", 
+                module: "IV", source: "Bank", topic: "Adv. Techniques" 
+            },
+            { 
+                id: 122, 
+                q: "Explain the ISO 9000 series and its importance in international quality management systems.", 
+                a: "Global standard for QMS. Importance: Standardization, Customer Confidence, Requirement for many government/B2B contracts.", 
+                module: "IV", source: "Bank", topic: "ISO Standards" 
+            },
+            { 
+                id: 123, 
+                q: "Discuss the Taguchi method for quality improvement and its application in design optimization.", 
+                a: "Taguchi defines Quality as 'loss imparted to society'. Uses 'Signal-to-Noise' ratios and 'Design of Experiments' (DOE) to find optimal parameters that are robust against noise factors.", 
+                module: "IV", source: "Bank", topic: "Adv. Techniques" 
+            },
+            { 
+                id: 124, 
+                q: "Explain the concept of Just-In-Time (JIT) and its role in enhancing quality and reducing waste.", 
+                a: "JIT requires perfect quality because there is no buffer stock to hide bad parts. If a defect occurs, the line stops (Jidoka). This immediate feedback loop forces immediate quality correction.", 
+                module: "IV", source: "Bank", topic: "JIT & Lean" 
+            },
+        ];
+
+        function App() {
+          const [activeTab, setActiveTab] = useState('ALL');
+          const [activeTopic, setActiveTopic] = useState('ALL');
+          const [currentView, setCurrentView] = useState('questions'); // 'questions' or 'syllabus'
+          const [searchQuery, setSearchQuery] = useState('');
+          const [completed, setCompleted] = useState(() => {
+            const saved = localStorage.getItem('qm_study_progress');
+            return saved ? JSON.parse(saved) : [];
+          });
+          const [showProgress, setShowProgress] = useState(false);
+          const [revealedAnswers, setRevealedAnswers] = useState([]);
+
+          useEffect(() => {
+            localStorage.setItem('qm_study_progress', JSON.stringify(completed));
+          }, [completed]);
+
+          const toggleComplete = (id) => {
+            setCompleted(prev => 
+              prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+            );
+          };
+
+          const toggleAnswer = (id) => {
+            setRevealedAnswers(prev => 
+              prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+            );
+          };
+
+          const clearProgress = () => {
+            if(confirm("Are you sure you want to reset your study progress?")) {
+              setCompleted([]);
+            }
+          };
+
+          const filteredQuestions = useMemo(() => {
+            return rawQuestions.filter(q => {
+              const matchesTab = activeTab === 'ALL' || q.module === activeTab;
+              const matchesTopic = activeTopic === 'ALL' || q.topic === activeTopic;
+              const matchesSearch = q.q.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                    q.a.toLowerCase().includes(searchQuery.toLowerCase()); // Search answers too
+              return matchesTab && matchesTopic && matchesSearch;
+            });
+          }, [activeTab, activeTopic, searchQuery]);
+
+          const availableTopics = useMemo(() => {
+            if (activeTab === 'ALL') {
+              const topics = new Set(rawQuestions.map(q => q.topic));
+              return Array.from(topics).sort();
+            }
+            const topics = new Set(rawQuestions.filter(q => q.module === activeTab).map(q => q.topic));
+            return Array.from(topics).sort();
+          }, [activeTab]);
+
+          const progressPercentage = Math.round((completed.length / rawQuestions.length) * 100);
+
+          const stats = useMemo(() => {
+            const s = { I: 0, II: 0, III: 0, IV: 0, total: 0 };
+            rawQuestions.forEach(q => {
+              if (completed.includes(q.id)) {
+                s[q.module]++;
+                s.total++;
+              }
+            });
+            return s;
+          }, [completed]);
+
+          const handleTabChange = (tab) => {
+            setActiveTab(tab);
+            setActiveTopic('ALL'); // Reset topic when changing module
+          };
+
+          return (
+            <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-blue-100">
+              
+              {/* Header */}
+              <div className="bg-white shadow-sm sticky top-0 z-20 border-b border-slate-200">
+                <div className="max-w-6xl mx-auto px-4 py-4">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <h1 className="text-xl md:text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <Award className="text-blue-600" />
+                        Quality Management (OE33501)
+                      </h1>
+                      <p className="text-xs text-slate-500 font-medium">Exam Preparation & Question Bank</p>
+                    </div>
+                    
+                    <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+                       {/* View Toggle */}
+                       <div className="bg-slate-100 p-1 rounded-lg flex gap-1 w-full md:w-auto">
+                         <button 
+                           onClick={() => setCurrentView('questions')}
+                           className={`flex-1 md:flex-none px-4 py-1.5 rounded-md text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
+                             currentView === 'questions' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                           }`}
+                         >
+                           <List size={16}/> Questions
+                         </button>
+                         <button 
+                           onClick={() => setCurrentView('syllabus')}
+                           className={`flex-1 md:flex-none px-4 py-1.5 rounded-md text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
+                             currentView === 'syllabus' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                           }`}
+                         >
+                           <FileText size={16}/> Syllabus
+                         </button>
+                       </div>
+
+                        {/* Search Bar (Only for Questions) */}
+                        {currentView === 'questions' && (
+                          <div className="relative w-full md:w-64 lg:w-96">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                            <input 
+                              type="text" 
+                              placeholder="Search questions or answers..." 
+                              className="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                          </div>
+                        )}
+                    </div>
+                  </div>
+
+                  {/* Progress Bar (Compact) - Only show in Questions View */}
+                  {currentView === 'questions' && (
+                    <div className="mt-4 flex items-center gap-3">
+                       <div className="flex-grow h-2 bg-slate-100 rounded-full overflow-hidden">
+                         <div 
+                           className="h-full bg-blue-600 transition-all duration-500"
+                           style={{ width: `${progressPercentage}%` }}
+                         />
+                       </div>
+                       <span className="text-xs font-bold text-slate-600 whitespace-nowrap">{completed.length} / {rawQuestions.length} Done ({progressPercentage}%)</span>
+                       <button onClick={() => setShowProgress(!showProgress)} className="text-slate-400 hover:text-slate-600">
+                         {showProgress ? <ChevronUp size={16}/> : <ChevronDown size={16} />}
+                       </button>
+                    </div>
+                  )}
+                  
+                  {/* Extended Stats */}
+                  {showProgress && currentView === 'questions' && (
+                    <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs bg-slate-50 p-3 rounded-lg border border-slate-100">
+                      {Object.entries(SyllabusModules).map(([key, data]) => {
+                        const modTotal = rawQuestions.filter(q => q.module === key).length;
+                        const modDone = stats[key];
+                        return (
+                          <div key={key} className="flex justify-between items-center p-2 bg-white rounded shadow-sm">
+                            <span className="font-semibold text-slate-500">{key}</span>
+                            <span className={modDone === modTotal ? "text-green-600 font-bold" : "text-slate-700"}>
+                              {modDone}/{modTotal}
+                            </span>
+                          </div>
+                        )
+                      })}
+                      <button 
+                        onClick={clearProgress}
+                        className="col-span-2 md:col-span-4 mt-2 text-red-500 hover:text-red-600 flex items-center justify-center gap-1 py-1 border border-red-100 rounded hover:bg-red-50"
+                      >
+                        <Trash2 size={12}/> Reset Progress
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Main Content */}
+              <main className="max-w-6xl mx-auto px-4 py-8">
+                
+                {currentView === 'questions' ? (
+                  <>
+                    {/* Module Tabs */}
+                    <div className="flex overflow-x-auto pb-2 gap-2 no-scrollbar mb-4">
+                      <button 
+                        onClick={() => handleTabChange('ALL')}
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap shadow-sm border ${
+                          activeTab === 'ALL' 
+                            ? 'bg-blue-600 text-white border-blue-600' 
+                            : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:text-blue-600'
+                        }`}
+                      >
+                        <Filter size={16} /> All Modules
+                      </button>
+                      
+                      {Object.entries(SyllabusModules).map(([key, data]) => (
+                        <button
+                          key={key}
+                          onClick={() => handleTabChange(key)}
+                          className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap shadow-sm border ${
+                            activeTab === key 
+                              ? 'bg-blue-600 text-white border-blue-600' 
+                              : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:text-blue-600'
+                          }`}
+                        >
+                          {data.icon} {data.title}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Topic Filters (Sub-menu) */}
+                    <div className="flex overflow-x-auto pb-4 gap-2 no-scrollbar mb-6 items-center">
+                        <span className="text-xs font-bold text-slate-400 uppercase mr-2 flex items-center gap-1">
+                          <Tag size={12}/> Topics:
+                        </span>
+                        <button 
+                            onClick={() => setActiveTopic('ALL')}
+                            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap border ${
+                              activeTopic === 'ALL' 
+                                ? 'bg-slate-700 text-white border-slate-700' 
+                                : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
+                            }`}
+                          >
+                            All Topics
+                        </button>
+                        {availableTopics.map(topic => (
+                          <button
+                            key={topic}
+                            onClick={() => setActiveTopic(topic)}
+                            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap border ${
+                              activeTopic === topic 
+                                ? 'bg-blue-100 text-blue-700 border-blue-200' 
+                                : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:text-blue-600'
+                            }`}
+                          >
+                            {topic}
+                          </button>
+                        ))}
+                    </div>
+
+                    {/* Info Banner for current module */}
+                    {activeTab !== 'ALL' && (
+                      <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 flex items-start gap-4">
+                         <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                           {SyllabusModules[activeTab].icon}
+                         </div>
+                         <div>
+                           <h2 className="font-bold text-blue-900 text-lg">{SyllabusModules[activeTab].title}</h2>
+                           <p className="text-blue-700">{SyllabusModules[activeTab].subtitle}</p>
+                         </div>
+                      </div>
+                    )}
+
+                    {/* Question Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {filteredQuestions.length > 0 ? (
+                        filteredQuestions.map((item) => {
+                          const isDone = completed.includes(item.id);
+                          const isRevealed = revealedAnswers.includes(item.id);
+
+                          return (
+                            <div 
+                              key={item.id} 
+                              className={`group relative flex flex-col p-5 rounded-xl border transition-all duration-200 hover:shadow-md ${
+                                isDone 
+                                  ? 'bg-slate-50 border-slate-200 opacity-90' 
+                                  : 'bg-white border-slate-200 hover:border-blue-300'
+                              }`}
+                            >
+                              <div className="flex justify-between items-start mb-3">
+                                <div className="flex flex-wrap gap-2">
+                                   <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                    item.source === 'PYQ' ? 'bg-amber-100 text-amber-700' :
+                                    item.source === 'Assignment' ? 'bg-purple-100 text-purple-700' :
+                                    'bg-emerald-100 text-emerald-700'
+                                  }`}>
+                                    {item.source}
+                                  </span>
+                                  <span className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600">
+                                    Mod {item.module}
+                                  </span>
+                                  <span className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100">
+                                    {item.topic}
+                                  </span>
+                                </div>
+                                <button 
+                                  onClick={() => toggleComplete(item.id)}
+                                  className={`transition-colors duration-200 ${isDone ? 'text-green-500' : 'text-slate-300 hover:text-green-400'}`}
+                                >
+                                  {isDone ? <CheckCircle size={24} className="fill-green-50" /> : <Circle size={24} />}
+                                </button>
+                              </div>
+                              
+                              <h3 className={`font-medium text-lg leading-snug mb-4 ${isDone ? 'text-slate-500' : 'text-slate-800'}`}>
+                                {item.q}
+                              </h3>
+
+                              {/* Answer Section */}
+                              <div className="mt-auto pt-2 border-t border-slate-100">
+                                {isRevealed ? (
+                                  <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                                     <div className="flex items-center justify-between mb-2">
+                                       <span className="text-xs font-bold text-slate-400 uppercase">Answer</span>
+                                       <button onClick={() => toggleAnswer(item.id)} className="text-slate-400 hover:text-slate-600">
+                                         <EyeOff size={16} />
+                                       </button>
+                                     </div>
+                                     <p className="text-sm text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                       {item.a}
+                                     </p>
+                                  </div>
+                                ) : (
+                                  <button 
+                                    onClick={() => toggleAnswer(item.id)}
+                                    className="w-full py-2 flex items-center justify-center gap-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                  >
+                                    <Eye size={16} /> Show Answer
+                                  </button>
+                                )}
+                              </div>
+                              
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="col-span-full py-20 text-center text-slate-400">
+                          <div className="mx-auto w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                            <Search size={32} />
+                          </div>
+                          <p className="text-lg font-medium">No questions found</p>
+                          <p className="text-sm">Try adjusting your search or filter.</p>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  /* Syllabus View */
+                  <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-300">
+                    {SyllabusContent.map((mod, index) => (
+                      <div key={index} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                         <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center gap-3">
+                           <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">
+                             {mod.module}
+                           </span>
+                           <h2 className="text-xl font-bold text-slate-800">{mod.title}</h2>
+                         </div>
+                         <div className="p-6 space-y-6">
+                           {mod.sections.map((section, sIdx) => (
+                             <div key={sIdx}>
+                               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-2 flex items-center gap-2">
+                                 <Circle size={8} className="fill-blue-500 text-blue-500" />
+                                 {section.header}
+                               </h3>
+                               <p className="text-slate-600 leading-relaxed pl-4 border-l-2 border-slate-100">
+                                 {section.content}
+                               </p>
+                             </div>
+                           ))}
+                         </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+              </main>
+            </div>
+          );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
